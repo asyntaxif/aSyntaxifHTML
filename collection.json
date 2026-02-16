@@ -1,0 +1,11 @@
+[
+  {
+    "id": "flappy-bird-clone",
+    "name": "SkyBound",
+    "description": "A physics-based clone of the classic Flappy Bird using HTML5 Canvas.",
+    "path": "./collection/flappy/index.html",
+    "tags": ["Game", "Canvas", "Physics"],
+    "color": "#FF70B8",
+    "icon": "🐥"
+  }
+]

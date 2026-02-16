@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="eclipse">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>aSyntaxifHTML | Library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 
+         * 1. CORE SYSTEM & VARIABLES 
+         */
+        :root {
+            /* Typography */
+            --font-display: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            /* Animation settings */
+            --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+            --duration-fast: 0.2s;
+            --duration-med: 0.4s;
+        }
+
+        /* 
+         * THEME: Eclipse (Dark)
+         * Deep, rich purples with neon accents
+         */
+        [data-theme="eclipse"] {
+            --bg-layer-1: #13111B;
+            --bg-layer-2: #0f0c16;
+            --surface: rgba(27, 24, 36, 0.65);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --surface-hover: rgba(47, 41, 66, 0.8);
+            
+            --text-primary: #EDE8F5;
+            --text-secondary: #9B94A8;
+            --text-muted: #5C5269;
+            
+            --accent-glow: rgba(149, 128, 255, 0.3);
+            --btn-bg: rgba(255, 255, 255, 0.05);
+            
+            --gradient-blob-1: #2f004f;
+            --gradient-blob-2: #002b3d;
+        }
+
+        /* 
+         * THEME: Bliss (Light)
+         * Soft, ethereal whites with vibrant magenta
+         */
+        [data-theme="bliss"] {
+            --bg-layer-1: #FDF7FF;
+            --bg-layer-2: #f4ebfa;
+            --surface: rgba(255, 255, 255, 0.75);
+            --surface-border: rgba(98, 76, 171, 0.1);
+            --surface-hover: rgba(255, 255, 255, 0.95);
+            
+            --text-primary: #3E3245;
+            --text-secondary: #746880;
+            --text-muted: #9E94A8;
+            
+            --accent-glow: rgba(98, 76, 171, 0.15);
+            --btn-bg: rgba(98, 76, 171, 0.05);
+
+            --gradient-blob-1: #EADCF5;
+            --gradient-blob-2: #D1F2F2;
+        }
+
+        /* 
+         * 2. RESET & BASE 
+         */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-layer-1);
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            overflow-x: hidden;
+            min-height: 100vh;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* Ambient Background Mesh */
+        .ambient-mesh {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 20s infinite alternate ease-in-out;
+        }
+        .blob-1 {
+            top: -10%; left: -10%; width: 50vw; height: 50vw;
+            background: var(--gradient-blob-1);
+            animation-duration: 25s;
+        }
+        .blob-2 {
+            bottom: -10%; right: -10%; width: 60vw; height: 60vw;
+            background: var(--gradient-blob-2);
+            animation-duration: 30s;
+            animation-direction: alternate-reverse;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 30px) scale(1.1); }
+        }
+
+        /* 
+         * 3. LAYOUT & STRUCTURE (Mobile First)
+         */
+        .app-shell {
+            padding: 0 1.25rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-bottom: 6rem; /* Space for bottom interaction */
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            
+            /* Glassmorphism Header */
+            background: rgba(var(--bg-layer-1), 0.01);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            margin: 0;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Search Bar */
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            padding-left: 3rem;
+            border-radius: 20px;
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            outline: none;
+            transition: all var(--duration-fast);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .search-input:focus {
+            border-color: var(--text-secondary);
+            background: var(--surface-hover);
+            transform: scale(1.01);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        /* Toggle Button */
+        .theme-toggle {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: transform var(--duration-fast) var(--ease-elastic);
+        }
+        .theme-toggle:active { transform: scale(0.9); }
+
+        /* 
+         * 4. GRID SYSTEM 
+         */
+        .project-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Mobile default */
+            gap: 1.5rem;
+        }
+
+        /* Tablet */
+        @media (min-width: 640px) {
+            .project-grid { grid-template-columns: repeat(2, 1fr); }
+            header { flex-direction: row; flex-wrap: wrap; padding: 1.5rem 0; }
+            .search-wrapper { order: 3; width: 100%; margin-top: 1rem; }
+            .header-top { width: 100%; }
+        }
+
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .project-grid { grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+            header { flex-wrap: nowrap; gap: 2rem; }
+            .search-wrapper { width: 400px; margin-top: 0; margin-left: auto; order: 2; }
+            .theme-toggle { order: 3; }
+        }
+
+        /* 
+         * 5. CARD COMPONENT 
+         */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s var(--ease-elastic), box-shadow 0.4s ease, border-color 0.3s;
+            cursor: default;
+            
+            /* Initial state for animation */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s var(--ease-out) forwards;
+        }
+
+        /* Animation delay handled in JS */
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--card-accent);
+            box-shadow: 0 15px 40px -10px var(--accent-glow);
+            z-index: 2;
+        }
+
+        /* Dynamic Glow Gradient on Card Top */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 160px;
+            background: radial-gradient(circle at 50% -20%, var(--card-accent), transparent 70%);
+            opacity: 0.15;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .card:hover::before { opacity: 0.25; }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+            transition: transform 0.4s var(--ease-elastic);
+        }
+        .card:hover .card-icon { transform: scale(1.2) rotate(5deg); }
+
+        .card-content { flex-grow: 1; }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 2rem;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            padding: 0.35rem 0.8rem;
+            border-radius: 12px;
+            background: var(--btn-bg);
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .card:hover .tag {
+            border-color: var(--card-accent);
+            color: var(--text-primary);
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: auto;
+        }
+
+        .btn {
+            border: none;
+            padding: 0.9rem;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.2s, filter 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--surface-border);
+        }
+        .btn-ghost:hover { background: var(--surface-hover); }
+
+        .btn-primary {
+            background: var(--card-accent);
+            color: #13111B; /* Always dark text for contrast on neons */
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        .btn-primary:hover { filter: brightness(1.15); transform: translateY(-2px); }
+
+        /* 
+         * 6. MODAL (Mobile Optimized) 
+         */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: flex-end; /* Sheet style on mobile */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        @media(min-width: 640px) {
+            .modal-overlay { align-items: center; justify-content: center; }
+        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-window {
+            width: 100%;
+            height: 90vh;
+            background: var(--bg-layer-1);
+            border-radius: 24px 24px 0 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            transform: translateY(100%);
+            transition: transform 0.4s var(--ease-elastic);
+        }
+        
+        .modal-overlay.active .modal-window { transform: translateY(0); }
+
+        @media(min-width: 640px) {
+            .modal-window {
+                width: 90%;
+                max-width: 1200px;
+                height: 85vh;
+                border-radius: 24px;
+                transform: scale(0.9);
+            }
+            .modal-overlay.active .modal-window { transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .close-btn {
+            background: var(--btn-bg);
+            border: none;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center; justify-content: center;
+        }
+
+        .modal-frame {
+            flex-grow: 1;
+            width: 100%;
+            border: none;
+            background: white;
+            border-radius: 0 0 0 0; /* Flat bottom on mobile */
+        }
+        @media(min-width: 640px) {
+            .modal-frame { border-radius: 0 0 24px 24px; }
+        }
+
+        /* 
+         * 7. UTILITIES & ANIMATIONS 
+         */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .empty-state {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 4rem;
+            opacity: 0;
+            animation: fadeInUp 0.5s forwards;
+            color: var(--text-muted);
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient-mesh">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="app-shell">
+        <header>
+            <div class="header-top">
+                <h1>aSyntaxifHTML</h1>
+                <button class="theme-toggle" id="themeBtn" aria-label="Toggle Theme">
+                    ☀️
+                </button>
+            </div>
+            
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search projects, tags...">
+            </div>
+        </header>
+
+        <main id="grid" class="project-grid">
+            <!-- Cards Render Here -->
+        </main>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3 id="modalTitle" style="margin:0; font-size:1.1rem;">Preview</h3>
+                <div style="display:flex; gap:1rem; align-items: center;">
+                    <a id="externalLink" href="#" target="_blank" class="btn btn-ghost" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                        Open Full ↗
+                    </a>
+                    <button class="close-btn" id="closeModal">&times;</button>
+                </div>
+            </div>
+            <iframe id="previewFrame" class="modal-frame" src=""></iframe>
+        </div>
+    </div>
+
+    <script>
+        class LibraryApp {
+            constructor() {
+                this.grid = document.getElementById('grid');
+                this.search = document.getElementById('searchInput');
+                this.themeBtn = document.getElementById('themeBtn');
+                this.modal = {
+                    overlay: document.getElementById('modalOverlay'),
+                    frame: document.getElementById('previewFrame'),
+                    title: document.getElementById('modalTitle'),
+                    link: document.getElementById('externalLink'),
+                    close: document.getElementById('closeModal')
+                };
+
+                this.projects = [];
+                this.currentTheme = localStorage.getItem('theme') || 'eclipse';
+                
+                this.init();
+            }
+
+            async init() {
+                this.setTheme(this.currentTheme);
+                this.bindEvents();
+                await this.fetchData();
+            }
+
+            bindEvents() {
+                // Theme Toggle
+                this.themeBtn.addEventListener('click', () => {
+                    const newTheme = this.currentTheme === 'eclipse' ? 'bliss' : 'eclipse';
+                    this.setTheme(newTheme);
+                });
+
+                // Search
+                this.search.addEventListener('input', (e) => this.filterProjects(e.target.value));
+
+                // Modal
+                this.modal.close.addEventListener('click', () => this.closeModal());
+                this.modal.overlay.addEventListener('click', (e) => {
+                    if (e.target === this.modal.overlay) this.closeModal();
+                });
+                
+                // Escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.modal.overlay.classList.contains('active')) {
+                        this.closeModal();
+                    }
+                });
+            }
+
+            setTheme(themeName) {
+                document.documentElement.setAttribute('data-theme', themeName);
+                this.themeBtn.textContent = themeName === 'eclipse' ? '☀️' : '🌒';
+                this.currentTheme = themeName;
+                localStorage.setItem('theme', themeName);
+            }
+
+            async fetchData() {
+                try {
+                    const res = await fetch('collection.json');
+                    if (!res.ok) throw new Error('Data not found');
+                    this.projects = await res.json();
+                    this.render(this.projects);
+                } catch (err) {
+                    this.grid.innerHTML = `
+                        <div class="empty-state">
+                            <h2>⚠️ System Error</h2>
+                            <p>Could not load collection.json</p>
+                            <pre>${err.message}</pre>
+                        </div>`;
+                }
+            }
+
+            render(data) {
+                this.grid.innerHTML = '';
+                
+                if (data.length === 0) {
+                    this.grid.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No signals found.</h3>
+                            <p>Try refining your search query.</p>
+                        </div>`;
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+
+                data.forEach((item, index) => {
+                    const card = document.createElement('article');
+                    card.className = 'card';
+                    card.style.setProperty('--card-accent', item.color || '#9580FF');
+                    
+                    // Staggered Animation Delay
+                    card.style.animationDelay = `${index * 100}ms`;
+
+                    const tagsHtml = item.tags.map(t => `<span class="tag">#${t}</span>`).join('');
+
+                    card.innerHTML = `
+                        <div class="card-icon">${item.icon}</div>
+                        <div class="card-content">
+                            <h2 class="card-title">${item.name}</h2>
+                            <p class="card-desc">${item.description}</p>
+                            <div class="tags">${tagsHtml}</div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-ghost" onclick="app.openPreview('${item.path}', '${item.name}')">
+                                👁 Preview
+                            </button>
+                            <a href="${item.path}" class="btn btn-primary" target="_blank">
+                                🚀 Launch
+                            </a>
+                        </div>
+                    `;
+                    fragment.appendChild(card);
+                });
+
+                this.grid.appendChild(fragment);
+            }
+
+            filterProjects(term) {
+                const lowerTerm = term.toLowerCase();
+                const filtered = this.projects.filter(p => 
+                    p.name.toLowerCase().includes(lowerTerm) || 
+                    p.tags.some(t => t.toLowerCase().includes(lowerTerm))
+                );
+                this.render(filtered);
+            }
+
+            openPreview(path, name) {
+                this.modal.frame.src = path;
+                this.modal.title.textContent = name;
+                this.modal.link.href = path;
+                this.modal.overlay.classList.add('active');
+            }
+
+            closeModal() {
+                this.modal.overlay.classList.remove('active');
+                // clear src after transition to stop audio/game loops
+                setTimeout(() => {
+                    this.modal.frame.src = '';
+                }, 400); 
+            }
+        }
+
+        const app = new LibraryApp();
+    </script>
+</body>
+</html>
